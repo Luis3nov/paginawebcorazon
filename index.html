@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafío de Compuertas Lógicas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #000;
+        }
+
+        .container {
+            background: #fff;
+            border: 3px solid #cc0000;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 10px 40px rgba(204, 0, 0, 0.2);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #cc0000;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 35px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 2px solid #cc0000;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #cc0000;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            font-size: 1.1em;
+        }
+
+        .heart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            height: 140px;
+        }
+
+        .heart {
+            position: relative;
+            width: 100px;
+            height: 90px;
+            filter: grayscale(100%) brightness(0.8);
+            transition: filter 0.5s ease;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 52px;
+            height: 80px;
+            background: #cc0000;
+            border-radius: 50px 50px 0 0;
+        }
+
+        .heart::before {
+            left: 50px;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .heart::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        .heart.beating {
+            filter: grayscale(0%) brightness(1) drop-shadow(0 0 10px rgba(204, 0, 0, 0.6));
+            animation: heartbeat 1s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10% { transform: scale(1.1); }
+            20% { transform: scale(1); }
+            30% { transform: scale(1.15); }
+            40% { transform: scale(1); }
+        }
+
+        .gate-container {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .gate-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gate-card {
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .gate-title {
+            text-align: center;
+            color: #cc0000;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .gate-number {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 18px;
+            text-align: center;
+            border: 2px solid #ddd;
+        }
+
+        th {
+            background: #cc0000;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        td {
+            background: #fff;
+            font-size: 1.1em;
+        }
+
+        .hint {
+            color: #cc0000;
+            font-weight: bold;
+            font-size: 1.5em;
+        }
+
+        .cell-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .bit-btn {
+            width: 55px;
+            height: 55px;
+            border: 3px solid #ddd;
+            background: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.2s;
+        }
+
+        .bit-btn:hover {
+            transform: scale(1.1);
+            border-color: #cc0000;
+        }
+
+        .bit-btn.selected {
+            background: #cc0000;
+            color: #fff;
+            border-color: #cc0000;
+            transform: scale(1.05);
+        }
+
+        .check-btn {
+            width: 100%;
+            padding: 20px;
+            background: #cc0000;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.4em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .check-btn:hover {
+            background: #990000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(204, 0, 0, 0.3);
+        }
+
+        .check-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeInModal 0.3s ease;
+        }
+
+        .result-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-content {
+            background: #fff;
+            border: 4px solid #cc0000;
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            animation: scaleIn 0.4s ease;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .result-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #cc0000;
+        }
+
+        .result-content p {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .gate-reveal {
+            background: #fff0f0;
+            border: 2px solid #cc0000;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .gate-reveal h3 {
+            color: #cc0000;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .correct-gate {
+            color: #cc0000;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .incorrect-gate {
+            color: #999;
+            font-size: 1.2em;
+        }
+
+        .next-btn {
+            margin-top: 30px;
+            padding: 18px 50px;
+            background: #cc0000;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .next-btn:hover {
+            background: #990000;
+            transform: scale(1.05);
+        }
+
+        .final-message {
+            font-size: 1.6em;
+            color: #cc0000;
+            margin-top: 20px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .instruction-box {
+            background: #fff0f0;
+            border: 2px solid #cc0000;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #333;
+        }
+
+        .start-screen {
+            display: block;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .start-screen.hidden {
+            display: none;
+        }
+
+        .game-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .game-content.active {
+            display: block;
+        }
+
+        .start-btn {
+            margin-top: 40px;
+            padding: 25px 60px;
+            background: #cc0000;
+            border: none;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1.8em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            box-shadow: 0 5px 20px rgba(204, 0, 0, 0.3);
+        }
+
+        .start-btn:hover {
+            background: #990000;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(204, 0, 0, 0.5);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+        }
+
+        .start-description {
+            font-size: 1.3em;
+            color: #666;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        .victory-heart {
+            width: 200px;
+            height: 180px;
+            position: relative;
+            margin: 30px auto;
+            filter: drop-shadow(0 0 20px rgba(204, 0, 0, 0.8));
+            animation: victoryBeat 0.8s infinite;
+        }
+
+        .victory-heart::before,
+        .victory-heart::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 104px;
+            height: 160px;
+            background: #cc0000;
+            border-radius: 100px 100px 0 0;
+        }
+
+        .victory-heart::before {
+            left: 100px;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .victory-heart::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        @keyframes victoryBeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.2); }
+            60% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de inicio -->
+        <div id="start-screen" class="start-screen">
+            <h1>JUEGO DE COMPUERTAS LOGICAS</h1>
+            <p class="subtitle">Completa las 3 tablas para activar el corazón</p>
+            
+            <div class="start-description">
+                <p> <strong></strong></p>
+                <p></p>
+                <p>Solo tienes <strong>2 intentos</strong></p>
+                <p></p>
+            </div>
+            
+            <button class="start-btn" onclick="startGame()">▶ Comenzar</button>
+        </div>
+
+        <!-- Contenido del juego -->
+        <div id="game-content" class="game-content">
+            <h1>JUEGO DE COMPUERTAS LÓGICAS</h1>
+            <p class="subtitle">Completa las tablas para activar el corazón</p>
+            
+            <div class="instruction-box">
+                💡 <strong>Instrucciones:</strong> Completa las tablas seleccionando 0 o 1. Necesitas acertar las 3 compuertas para activar el corazón.
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill">0 / 3</div>
+            </div>
+
+            <div class="heart-container">
+                <div class="heart" id="heart"></div>
+            </div>
+
+            <div id="gates-wrapper"></div>
+        </div>
+    </div>
+
+    <div class="result-modal" id="result-modal">
+        <div class="result-content" id="result-content"></div>
+    </div>
+
+    <script>
+        const allGates = [
+            { name: "AND", truth: [0, 0, 0, 1], symbol: "" },
+            { name: "OR", truth: [0, 1, 1, 1], symbol: "" },
+            { name: "NAND", truth: [1, 1, 1, 0], symbol: "" },
+            { name: "XOR", truth: [0, 1, 1, 0], symbol: "" }
+        ];
+
+        let selectedGates = [];
+        let currentGateIndex = 0;
+        let correctGates = 0;
+        let userAnswers = {};
+        let totalAttempts = 2; // Intentos globales para todo el juego
+        let gameStarted = false;
+        
+        // Variables para audio
+        let audioContext;
+        let heartbeatInterval;
+        let heartbeatRate = 1000;
+
+        // Inicializar AudioContext
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
+        // Crear sonido de latido
+        function playHeartbeat() {
+            initAudio();
+            
+            const now = audioContext.currentTime;
+            const oscillator1 = audioContext.createOscillator();
+            const oscillator2 = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator1.connect(gainNode);
+            oscillator2.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator1.frequency.setValueAtTime(80, now);
+            oscillator1.frequency.exponentialRampToValueAtTime(40, now + 0.1);
+            oscillator1.type = 'sine';
+            
+            oscillator2.frequency.setValueAtTime(60, now + 0.15);
+            oscillator2.frequency.exponentialRampToValueAtTime(30, now + 0.25);
+            oscillator2.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            
+            oscillator1.start(now);
+            oscillator1.stop(now + 0.1);
+            oscillator2.start(now + 0.15);
+            oscillator2.stop(now + 0.3);
+        }
+
+        // Crear sonido de flatline (piiiiip) - 5 segundos
+        function playFlatline() {
+            initAudio();
+            
+            const now = audioContext.currentTime;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, now);
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.2, now + 0.1);
+            gainNode.gain.setValueAtTime(0.2, now + 4.5);
+            gainNode.gain.linearRampToValueAtTime(0, now + 5);
+            
+            oscillator.start(now);
+            oscillator.stop(now + 5);
+        }
+
+        // Iniciar latidos del corazón
+        function startHeartbeat(rate) {
+            stopHeartbeat();
+            heartbeatRate = rate;
+            playHeartbeat();
+            heartbeatInterval = setInterval(playHeartbeat, heartbeatRate);
+        }
+
+        // Detener latidos
+        function stopHeartbeat() {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+        }
+
+        // Actualizar ritmo cardíaco basado en progreso
+        function updateHeartbeatRate() {
+            if (correctGates === 0) {
+                heartbeatRate = 1200;
+            } else if (correctGates === 1) {
+                heartbeatRate = 900;
+            } else if (correctGates === 2) {
+                heartbeatRate = 700;
+            } else if (correctGates === 3) {
+                heartbeatRate = 600;
+            }
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function selectRandomGates() {
+            const shuffled = shuffleArray(allGates);
+            selectedGates = shuffled.slice(0, 3);
+        }
+
+        function getRandomHints(gateNum) {
+            const hints = [];
+            while (hints.length < 3) {
+                const random = Math.floor(Math.random() * 4);
+                if (!hints.includes(random)) {
+                    hints.push(random);
+                }
+            }
+            return hints.sort((a, b) => a - b);
+        }
+
+        function createGateHTML(gateIndex) {
+            const gate = selectedGates[gateIndex];
+            const hints = getRandomHints(gateIndex);
+            const inputs = [[0,0], [0,1], [1,0], [1,1]];
+            
+            let tableRows = '';
+            inputs.forEach((input, rowIndex) => {
+                const isHint = hints.includes(rowIndex);
+                tableRows += `
+                    <tr>
+                        <td>${input[0]}</td>
+                        <td>${input[1]}</td>
+                        <td>
+                            ${isHint ? 
+                                `<span class="hint">${gate.truth[rowIndex]}</span>` :
+                                `<div class="cell-buttons">
+                                    <button class="bit-btn" onclick="selectBit(${gateIndex}, ${rowIndex}, 0)">0</button>
+                                    <button class="bit-btn" onclick="selectBit(${gateIndex}, ${rowIndex}, 1)">1</button>
+                                </div>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            });
+
+            return `
+                <div id="gate-${gateIndex}" class="gate-container ${gateIndex === 0 ? 'active' : ''}">
+                    <div class="gate-card">
+                        <div class="gate-title">COMPUERTA MISTERIOSA #${gateIndex + 1}</div>
+                        <div class="gate-number">[ Tabla de Verdad ] - <span id="attempts-display" style="color: #cc0000; font-weight: bold;">Intentos: ${totalAttempts}/2</span></div>
+                        <table>
+                            <tr>
+                                <th>A</th>
+                                <th>B</th>
+                                <th>Salida</th>
+                            </tr>
+                            ${tableRows}
+                        </table>
+                        <button class="check-btn" onclick="checkGate(${gateIndex})">✓ Verificar Compuerta</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectBit(gateIndex, rowIndex, value) {
+            if (!gameStarted) return;
+            initAudio();
+            
+            if (!userAnswers[gateIndex]) {
+                userAnswers[gateIndex] = {};
+            }
+            
+            const container = document.getElementById(`gate-${gateIndex}`);
+            if (!container) return;
+            
+            const rows = container.querySelectorAll('table tr');
+            if (!rows || rows.length <= rowIndex + 1) return;
+            
+            const row = rows[rowIndex + 1];
+            const buttons = row.querySelectorAll('.bit-btn');
+            
+            if (!buttons || buttons.length === 0) return;
+            
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            if (buttons[value]) {
+                buttons[value].classList.add('selected');
+            }
+            
+            userAnswers[gateIndex][rowIndex] = value;
+        }
+
+        function checkGate(gateIndex) {
+            if (!gameStarted) return;
+            initAudio();
+
+            const gate = selectedGates[gateIndex];
+            const answers = userAnswers[gateIndex] || {};
+            let isCorrect = true;
+
+            for (let i = 0; i < 4; i++) {
+                if (answers[i] !== undefined && answers[i] !== gate.truth[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            const modal = document.getElementById('result-modal');
+            const content = document.getElementById('result-content');
+
+            if (isCorrect) {
+                correctGates++;
+                updateProgress();
+                
+                updateHeartbeatRate();
+                if (correctGates === 1) {
+                    startHeartbeat(heartbeatRate);
+                } else if (correctGates > 1) {
+                    startHeartbeat(heartbeatRate);
+                }
+
+                content.innerHTML = `
+                    <h2>✅ ¡CORRECTO!</h2>
+                    <div class="gate-reveal">
+                        <h3>Has descubierto la compuerta:</h3>
+                        <p class="correct-gate">${gate.name} ${gate.symbol}</p>
+                        <p style="color: #666; margin-top: 10px;">Tabla completa: ${gate.truth.join(', ')}</p>
+                    </div>
+                    <p>Compuerta ${gateIndex + 1} de 3 completada</p>
+                    ${gateIndex < 2 ? 
+                        `<button class="next-btn" onclick="nextGate(${gateIndex})">→ Siguiente Compuerta</button>` : 
+                        '<button class="next-btn" onclick="showFinalResult()">Ver Resultado Final</button>'}
+                `;
+                modal.classList.add('show');
+            } else {
+                totalAttempts--;
+                updateAttemptsDisplay();
+
+                if (totalAttempts > 0) {
+                    content.innerHTML = `
+                        <h2>❌ INCORRECTO</h2>
+                        <p>La tabla no coincide con ninguna compuerta lógica conocida.</p>
+                        <p style="color: #cc0000; font-weight: bold; margin-top: 15px;">Te queda${totalAttempts > 1 ? 'n' : ''} ${totalAttempts} intento${totalAttempts > 1 ? 's' : ''}</p>
+                        <button class="next-btn" onclick="closeModal()">Reintentar</button>
+                    `;
+                } else {
+                    // Perdió todos los intentos - flatline de 5 segundos
+                    stopHeartbeat();
+                    playFlatline();
+                    
+                    content.innerHTML = `
+                        <h2>💔 GAME OVER</h2>
+                        <p>Has agotado tus 2 intentos del juego.</p>
+                        <div class="gate-reveal">
+                            <h3>La compuerta era:</h3>
+                            <p class="incorrect-gate">${gate.name} ${gate.symbol}</p>
+                            <p style="color: #666; margin-top: 10px;">Tabla completa: ${gate.truth.join(', ')}</p>
+                        </div>
+                        <p style="color: #999; margin-top: 15px;">Has completado ${correctGates} de 3 compuertas correctamente</p>
+                        <button class="next-btn" onclick="location.reload()">Intentar de Nuevo</button>
+                    `;
+                }
+                modal.classList.add('show');
+            }
+        }
+
+        function updateAttemptsDisplay() {
+            const attemptsDisplay = document.getElementById('attempts-display');
+            if (attemptsDisplay) {
+                attemptsDisplay.textContent = `Intentos: ${totalAttempts}/2`;
+            }
+        }
+
+        function nextGate(currentIndex) {
+            document.getElementById(`gate-${currentIndex}`).classList.remove('active');
+            document.getElementById(`gate-${currentIndex + 1}`).classList.add('active');
+            closeModal();
+            // Actualizar el display de intentos en la nueva compuerta
+            updateAttemptsDisplay();
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.remove('show');
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progress-fill');
+            const percentage = (correctGates / 3) * 100;
+            progressFill.style.width = percentage + '%';
+            progressFill.textContent = `${correctGates} / 3`;
+
+            const heart = document.getElementById('heart');
+            if (correctGates >= 3) {
+                heart.classList.add('beating');
+            }
+        }
+
+        function showFinalResult() {
+            const content = document.getElementById('result-content');
+            
+            let gatesHTML = '';
+            selectedGates.forEach((gate, index) => {
+                gatesHTML += `<p class="correct-gate">${index + 1}. ${gate.name} ${gate.symbol}</p>`;
+            });
+
+            if (correctGates >= 3) {
+                // Victoria perfecta - mostrar corazón latiendo
+                stopHeartbeat();
+                // Iniciar latido de victoria continuo
+                startHeartbeat(600);
+                
+                content.innerHTML = `
+                    <h2>🎉 ¡Felicidades!</h2>
+                    <p>Has completado las 3 compuertas correctamente</p>
+                    <div class="victory-heart"></div>
+                    <div class="gate-reveal">
+                        <h3>Compuertas del desafío:</h3>
+                        ${gatesHTML}
+                    </div>
+                    <p class="final-message">❤️ EL CORAZÓN LATE ❤️</p>
+                    <button class="next-btn" onclick="restartGame()">Nuevo Desafío</button>
+                `;
+            } else {
+                stopHeartbeat();
+                playFlatline();
+                
+                content.innerHTML = `
+                    <h2>💔 DESAFÍO INCOMPLETO</h2>
+                    <p>Solo completaste ${correctGates} compuerta(s) de 3</p>
+                    <p style="color: #999;">Necesitas acertar las 3 compuertas para activar el corazón</p>
+                    <div class="gate-reveal">
+                        <h3>Las compuertas eran:</h3>
+                        ${gatesHTML}
+                    </div>
+                    <button class="next-btn" onclick="restartGame()">Intentar de Nuevo</button>
+                `;
+            }
+        }
+
+        function startGame() {
+            gameStarted = true;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-content').classList.add('active');
+            initAudio();
+        }
+
+        function restartGame() {
+            stopHeartbeat();
+            location.reload();
+        }
+
+        function init() {
+            selectRandomGates();
+            const wrapper = document.getElementById('gates-wrapper');
+            let html = '';
+            for (let i = 0; i < 3; i++) {
+                html += createGateHTML(i);
+            }
+            wrapper.innerHTML = html;
+        }
+
+        init();
+    </script>
+</body>
+</html>
